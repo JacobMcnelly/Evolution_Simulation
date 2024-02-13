@@ -1,12 +1,21 @@
+
+
+
 import random
+import os
 
 # sets up variables to begin with ancestor Genome #
 ancestor_sequence = []
 bases = ["A","T","C","G"]
-
-# add randome base from bases to make random 10 base genome #
-for base in range(0,20):
-    ancestor_sequence.append(bases[random.randint(0,3)])
+preexisting_sequence = input("Paste a preexisting sequence here:(type none if there is none)\n")
+# IF FILE IS EMPTY: add random base from bases to make random 10 base genome IF SEQUENCE IS PASTED INTO TERMINAL: ancester sequence becomes the pasted sequence#
+if preexisting_sequence.lower() == "none":
+    length = int(input("How long should the sequence be?\n"))
+    for base in range(0,length):
+        ancestor_sequence.append(bases[random.randint(0,3)])
+else:
+    for char in preexisting_sequence:
+        ancestor_sequence.append(char)
 
 # substitution mutation (takes out a base and replaces it with another) #
 def substitution(genome):
@@ -17,7 +26,7 @@ def deletion(genome):
     genome.pop(random.randrange(len(genome))) 
     genome.append(random.choice(bases))
 
-# simulates a generational mutation by picking one of the two tyoes of mutations at random # 
+# simulates a generational mutation by picking one of the two types of mutations at random # 
 def new_gen(generation):
     descendant = generation.copy()
     choice = random.randint(0,1)
@@ -52,7 +61,45 @@ for gen in generations_list:
 # substitution(generation_2)
 # # deletion(generation_2)
 
-# prints ancestor genome and final generation genome in two lists #
-print(f'''First Generation  :{ancestor_sequence}\nFinal Generation1:{gen}''')
+#Counts differences and displays location of differences in original and final sequences#
+differences = 0
+show_diff = {}
+for base in range(0,len(ancestor_sequence)):
+    if gen[base] != ancestor_sequence[base]:
+        differences += 1
+        show_diff[base + 1] = [ancestor_sequence[base],gen[base]]
+    else:
+        # gen[base] = "-"
+        pass
+
+#PUTS LISTS INTO DICTIONARIES SO THAT POI ARE EASILY PARSABLE FOR LATER#
+headers = []
+for base in range(1,len(ancestor_sequence)):
+    headers.append(base)
+sequences = {"Sequence": ["ancestor sequence","Final sequence"]}
+for base in range(0,len(ancestor_sequence)):
+        sequences[base + 1] = [ancestor_sequence[base],gen[base]]
+
+
+### TURNS ANCESTOR LIST AND DESCENDANT SEQUENCE(GEN) INTO STRINGS TO BE PUT IN FASTA FORMAT#
+    
+str_gen = ""
+for base in range(0,len(gen)):
+    str_gen += ''+gen[base]
+
+ancestor_str = ""
+for base in range(0,len(ancestor_sequence)):
+    ancestor_str += ''+ancestor_sequence[base]
+
+##CHECKS TO SEE IF THERE IS ALREADY DATA IN THE TXT FILE##
+f = open("my_fasta.txt", "a")
+if os.path.getsize('my_fasta.txt') == 0:
+    f.write(f"\n>ancestor\n{ancestor_str}\n>rand_1\n{str_gen}")
+else:
+    seq_name = input("what do you want to name this sequence?\n")
+    f.write(f"\n>{seq_name}\n{str_gen}")
+f.close()
+# print(generations_list)
+# print(str_gen)
 
 
